@@ -79,7 +79,7 @@ export default function Login() {
               type="password"
             />
 
-            <Button type="submit">
+            <Button type="submit" className="cursor-pointer">
               {isPendingLogin ? <Loader2 className="animate-spin" /> : "Login"}
             </Button>
           </form>

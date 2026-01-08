@@ -84,10 +84,12 @@ export default function FormUser<T extends FieldValues>({
           )}
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline" className="cursor-pointer">
+                Cancel
+              </Button>
             </DialogClose>
-            <Button type="submit">
-              {isLoading ? <Loader2 className="animate-spin" /> : type}
+            <Button type="submit" className="cursor-pointer">
+              {isLoading ? <Loader2 className="animate-spin " /> : type}
             </Button>
           </DialogFooter>
         </form>

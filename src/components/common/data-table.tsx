@@ -90,14 +90,18 @@ export default function DataTable({
             value={currentLimit.toString()}
             onValueChange={(value) => onChangeLimit(Number(value))}
           >
-            <SelectTrigger>
+            <SelectTrigger className="cursor-pointer">
               <SelectValue placeholder="Select Limit" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Limit</SelectLabel>
                 {LIMIT_LISTS.map((limit) => (
-                  <SelectItem key={limit} value={limit.toString()}>
+                  <SelectItem
+                    key={limit}
+                    value={limit.toString()}
+                    className="cursor-pointer"
+                  >
                     {limit}
                   </SelectItem>
                 ))}

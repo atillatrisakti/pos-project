@@ -46,7 +46,7 @@ export default function AppSidebar() {
                 <div className="bg-teal-500 flex p-2 items-center justify-center rounded-md">
                   <Coffee className="size-4" />
                 </div>
-                WPU Cafe
+                EBA Cafe
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -85,10 +85,14 @@ export default function AppSidebar() {
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
                 >
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src={profile.avatar_url} alt={profile.name} />
+                    <AvatarImage
+                      src={profile.avatar_url}
+                      alt={profile.name}
+                      className="object-cover"
+                    />
                     <AvatarFallback className="rounded-lg">
                       {profile.name?.charAt(0)}
                     </AvatarFallback>
@@ -114,6 +118,7 @@ export default function AppSidebar() {
                       <AvatarImage
                         src={profile.avatar_url}
                         alt={profile.name}
+                        className="object-cover"
                       />
                       <AvatarFallback className="rounded-lg">
                         {profile.name?.charAt(0)}
@@ -129,7 +134,10 @@ export default function AppSidebar() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem onClick={() => signOut()}>
+                  <DropdownMenuItem
+                    onClick={() => signOut()}
+                    className="cursor-pointer"
+                  >
                     <LogOut />
                     Logout
                   </DropdownMenuItem>

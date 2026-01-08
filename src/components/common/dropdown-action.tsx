@@ -23,19 +23,20 @@ export default function DropdownAction({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="text-muted-foreground size-8"
+          className="text-muted-foreground size-8 cursor-pointer"
           size="icon"
         >
           <EllipsisVertical />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-32">
+      <DropdownMenuContent align="end" className="w-32 ">
         {menu.map((item, index) => (
           <DropdownMenuItem
             key={`dropdown-action${index}`}
             variant={item.variant || "default"}
             asChild={item.type === "link"}
             onClick={item.action}
+            className="cursor-pointer"
           >
             {item.label}
           </DropdownMenuItem>
