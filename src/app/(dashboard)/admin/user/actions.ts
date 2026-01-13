@@ -6,7 +6,6 @@ import {
   createUserSchemaForm,
   updateUserSchemaForm,
 } from "@/validations/auth-validation";
-import { error } from "console";
 
 export async function createUser(prevState: AuthFormState, formData: FormData) {
   let validatedFields = createUserSchemaForm.safeParse({
