@@ -9,11 +9,20 @@ import { cn, convertIDR } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo } from "react";
+import { startTransition, useActionState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import OrderSummary from "./order-summary";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { EllipsisVertical } from "lucide-react";
+import { updateStatusOrderitem } from "../../action";
+import { INITIAL_STATE_ACTION } from "@/constants/general-contstant";
 
-export default function OrderDetail({ id }: { id: string }) {
+export default function DetailOrder({ id }: { id: string }) {
   const supabase = createClient();
   const { currentPage, currentLimit, handleChangePage, handleChangeLimit } =
     useDataTable();
@@ -37,7 +46,11 @@ export default function OrderDetail({ id }: { id: string }) {
     enabled: !!id,
   });
 
-  const { data: orderMenu, isLoading: isLoadingOrderMenu } = useQuery({
+  const {
+    data: orderMenu,
+    isLoading: isLoadingOrderMenu,
+    refetch: refetchOrderMenu,
+  } = useQuery({
     queryKey: ["orders_menu", order?.id, currentPage, currentLimit],
     queryFn: async () => {
       const result = await supabase
@@ -56,6 +69,37 @@ export default function OrderDetail({ id }: { id: string }) {
     enabled: !!order?.id,
   });
 
+  const [updateStatusOrderState, updateStatusOrderAction] = useActionState(
+    updateStatusOrderitem,
+    INITIAL_STATE_ACTION
+  );
+
+  const handleUpdateStatusOrder = async (data: {
+    id: string | number;
+    status: string;
+  }) => {
+    const formData = new FormData();
+    formData.append("id", data.id.toString());
+    formData.append("status", data.status);
+
+    startTransition(() => {
+      updateStatusOrderAction(formData);
+    });
+  };
+
+  useEffect(() => {
+    if (updateStatusOrderState?.status === "error") {
+      toast.error("Update Status Order Failed", {
+        description: updateStatusOrderState.errors?._form?.[0],
+      });
+    }
+
+    if (updateStatusOrderState?.status === "success") {
+      toast.success("Update Status Order Success");
+      refetchOrderMenu();
+    }
+  }, [updateStatusOrderState]);
+
   const filteredData = useMemo(() => {
     return (orderMenu?.data || []).map((item, index) => {
       return [
@@ -64,8 +108,8 @@ export default function OrderDetail({ id }: { id: string }) {
           <Image
             src={item.menus.image_url}
             alt={item.menus.name}
-            width={80}
-            height={80}
+            width={40}
+            height={40}
             className="rounded"
           />
           <div className="flex flex-col">
@@ -81,12 +125,46 @@ export default function OrderDetail({ id }: { id: string }) {
             "bg-gray-500": item.status === "pending",
             "bg-yellow-500": item.status === "process",
             "bg-blue-500": item.status === "ready",
-            "bg-green-500": item.status === "serve",
+            "bg-green-500": item.status === "served",
           })}
         >
           {item.status}
         </div>,
-        "",
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className={cn(
+                "data-[state=open]:bg-muted text-muted-foreground flex size-8",
+                { hidden: item.status === "served" }
+              )}
+              size="icon"
+            >
+              <EllipsisVertical />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40">
+            {["pending", "process", "ready"].map((status, index) => {
+              const nextStatus = ["process", "ready", "served"][index];
+              return (
+                item.status === status && (
+                  <DropdownMenuItem
+                    key={status}
+                    onClick={() =>
+                      handleUpdateStatusOrder({
+                        id: item.id,
+                        status: nextStatus,
+                      })
+                    }
+                    className="capitalize"
+                  >
+                    {nextStatus}
+                  </DropdownMenuItem>
+                )
+              );
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>,
       ];
     });
   }, [orderMenu?.data]);
@@ -101,7 +179,7 @@ export default function OrderDetail({ id }: { id: string }) {
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between gap-4 w-full">
         <h1 className="text-2xl font-bold">Detail Order</h1>
-        <Link href="">
+        <Link href={`/order/${id}/add`}>
           <Button>Add Order Item</Button>
         </Link>
       </div>
