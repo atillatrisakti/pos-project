@@ -153,7 +153,9 @@ export default function MenuManagement() {
           />
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline">Create</Button>
+              <Button variant="outline" className="cursor-pointer">
+                Create
+              </Button>
             </DialogTrigger>
             <DialogCreateMenu refetch={refetch} />
           </Dialog>
