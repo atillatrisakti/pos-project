@@ -106,7 +106,14 @@ export default function AddOrderItem({ id }: { id: string }) {
     } else {
       setCarts([
         ...carts,
-        { menu_id: menu.id, quantity: 1, total: menu.price, notes: "", menu },
+        {
+          menu_id: menu.id,
+          quantity: 1,
+          total: menu.price,
+          notes: "",
+          menu,
+          order_id: "",
+        },
       ]);
     }
   };
@@ -118,8 +125,8 @@ export default function AddOrderItem({ id }: { id: string }) {
     const data = {
       order_id: id,
       items: carts.map((item) => ({
-        order_id: order?.id ?? "",
         ...item,
+        order_id: order?.id ?? "",
         status: "pending",
       })),
     };

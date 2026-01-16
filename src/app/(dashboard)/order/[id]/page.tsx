@@ -23,6 +23,7 @@ export default async function OrderDetailPage({
         src={`${environment.MIDTRANS_API_URL}/snap/snap.js`}
         data-client-key={environment.MIDTRANS_CLIENT_KEY}
         strategy="lazyOnload"
+        unsafe-inline
       />
       <OrderDetail id={id} />
     </div>
