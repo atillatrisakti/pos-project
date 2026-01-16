@@ -4,7 +4,7 @@ import DataTable from "@/components/common/data-table";
 import { Button } from "@/components/ui/button";
 import { HEADER_TABLE_DETAIL_ORDER } from "@/constants/order-constants";
 import useDataTable from "@/hooks/use-datatable";
-import { createClient } from "@/lib/supabase/client";
+import { createClientSupabase } from "@/lib/supabase/default";
 import { cn, convertIDR } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
@@ -21,11 +21,13 @@ import {
 import { EllipsisVertical } from "lucide-react";
 import { updateStatusOrderitem } from "../../action";
 import { INITIAL_STATE_ACTION } from "@/constants/general-contstant";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function DetailOrder({ id }: { id: string }) {
-  const supabase = createClient();
+  const supabase = createClientSupabase();
   const { currentPage, currentLimit, handleChangePage, handleChangeLimit } =
     useDataTable();
+  const profile = useAuthStore((state) => state.profile);
 
   const { data: order } = useQuery({
     queryKey: ["order", id],
@@ -45,6 +47,30 @@ export default function DetailOrder({ id }: { id: string }) {
     },
     enabled: !!id,
   });
+
+  useEffect(() => {
+    if (!order?.id) return;
+
+    const channel = supabase
+      .channel("change-order")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "orders_menus",
+          filter: `order_id=eq.${order?.id}`,
+        },
+        () => {
+          refetchOrderMenu();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [order?.id]);
 
   const {
     data: orderMenu,
@@ -96,7 +122,6 @@ export default function DetailOrder({ id }: { id: string }) {
 
     if (updateStatusOrderState?.status === "success") {
       toast.success("Update Status Order Success");
-      refetchOrderMenu();
     }
   }, [updateStatusOrderState]);
 
@@ -179,9 +204,11 @@ export default function DetailOrder({ id }: { id: string }) {
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between gap-4 w-full">
         <h1 className="text-2xl font-bold">Detail Order</h1>
-        <Link href={`/order/${id}/add`}>
-          <Button>Add Order Item</Button>
-        </Link>
+        {profile.role !== "kitchen" && (
+          <Link href={`/order/${id}/add`}>
+            <Button>Add Order Item</Button>
+          </Link>
+        )}
       </div>
       <div className="flex flex-col lg:flex-row gap-4 w-full">
         <div className="lg:w-2/3">
